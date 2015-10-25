@@ -10,16 +10,16 @@ module MiniTest
         assert_equal value, reflected_assoc.options[key]
       end
     end
-    
+
     def assert_validates_presence_of(clazz, attribute)
       validators = clazz._validators[attribute]
       refute validators.empty?, "#{clazz} does not have validations for #{attribute}"
-      presence_validator = ::ActiveModel::Validations::PresenceValidator
+      presence_validators = [::ActiveModel::Validations::PresenceValidator, ::ActiveRecord::Validations::PresenceValidator]
       validator_classes = validators.map { |v| v.class }
-      assert validator_classes.include?(presence_validator), 
-        "#{clazz} does not validate_presence_of #{attribute}"
+      assert validator_classes.any?{ |validator_class| presence_validators.include?(validator_class) },
+             "#{clazz} does not validate_presence_of #{attribute}"
     end
-    
+
     def assert_validates_uniqueness_of(clazz, *attributes) 
       has_validator = false
       attributes.each do |attribute|
